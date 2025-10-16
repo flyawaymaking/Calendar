@@ -1,0 +1,178 @@
+title: '&0&lКалендарь'
+# графический интерфейс может содержать от 1 до 6 строк
+rows: 6
+
+# ----- Предметы -----
+
+filler:
+  material: BLACK_STAINED_GLASS_PANE
+  name: ''
+  slot:
+    - 0-53
+
+close:
+  slot: 49
+  material: BARRIER
+  name: '&#FF0000&lЗакрыть'
+  lore:
+    - ''
+    - '&#FF0000Нажмите здесь чтобы закрыть!'
+
+presents:
+  weekday:
+    slot:
+      - 1-5
+      - 10-14
+      - 19-23
+    # К каким дням привязан пункт меню
+    days:
+      - 1-5
+      - 8-12
+      - 15-19
+    # показывается, когда подарок может быть получен
+    item-claimable:
+      material: PLAYER_HEAD
+      texture: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjJiN2I5ZTA3YzM1MGJjZDY2MmJjZjNmMTYyNGE1OGU5NjVhNzZlYTAxOTE2ZGQzM2M0NzViZDFmYzg2OTQ3YiJ9fX0=
+      name: '&#00FF00&lДень %day%'
+      lore:
+        - ''
+        - ' &7- &fЗабирай свой подарок!'
+        - '(10 пузырьков опыта, 500 монет, 8 печенек)'
+        - ''
+        - '&#00FF00Нажмите здесь чтобы получить'
+    # показывается, когда подарок уже получен
+    item-claimed:
+      material: GREEN_STAINED_GLASS
+      name: '&#00AA00&lДень %day%'
+      lore:
+        - ''
+        - ' &7- &fВы уже получили этот подарок!'
+        - '(10 пузырьков опыта, 500 монет, 8 печенек)'
+        - ''
+        - '&#00AA00Уже получен'
+    # показывается, когда подарок не может быть получен
+    item-unclaimable:
+      material: YELLOW_STAINED_GLASS
+      name: '&#FF3333&lДень %day%'
+      lore:
+        - ''
+        - ' &7- &fПодарок можно открыть в: &#FF9999%time%&f!'
+        - '(10 пузырьков опыта, 500 монет, 8 печенек)'
+        - ''
+        - '&#FF3333Возвращайтесь позже'
+
+  saturday:
+    slot:
+      - 6
+      - 15
+      - 24
+    days:
+      - 6
+      - 13
+      - 20
+    item-claimable:
+      material: PLAYER_HEAD
+      texture: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYWRmZTI3YzVjNGExZGFjNTI1ZTZiOGU5ZTk3OGQ2NDcwMTIxZDgxZDZlNjExNWNmYTgyYWI3ZGY2YjBlZjNhMSJ9fX0=
+      name: '&#00FF00&lДень %day%'
+      lore:
+        - ''
+        - ' &7- &fЗабирай свой подарок!'
+        - '(3 алмаза, 1 зачарованное яблоко, 700 монет)'
+        - ''
+        - '&#00FF00Нажми здесь чтобы получить'
+    item-claimed:
+      material: GREEN_STAINED_GLASS
+      name: '&#00AA00&lДень %day%'
+      lore:
+        - ''
+        - ' &7- &fВы уже получили этот подарок!'
+        - '(3 алмаза, 1 зачарованное яблоко, 700 монет)'
+        - ''
+        - '&#00AA00Уже получен'
+    item-unclaimable:
+      material: YELLOW_STAINED_GLASS
+      name: '&#FF3333&lДень %day%'
+      lore:
+        - ''
+        - ' &7- &fПодарок можно открыть в: &#FF9999%time%&f!'
+        - '(3 алмаза, 1 зачарованное яблоко, 700 монет)'
+        - ''
+        - '&#FF3333Возвращайся позже'
+
+  sunday:
+    slot:
+      - 7
+      - 16
+    days:
+      - 7
+      - 14
+    item-claimable:
+      material: PLAYER_HEAD
+      texture: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWI5MmYzMTY3NjgyMzMxMTM3NzJjNmRhNTk4NDdiYmM1YWUzNjRjZmUzODMwYTdhNDM4MGVhZDU0YTJlYmVhOCJ9fX0=
+      name: '&#00FF00&lДень %day%'
+      lore:
+        - ''
+        - ' &7- &fЗабирай свой подарок!'
+        - '(5 алмазов, 30 коинов)'
+        - ''
+        - '&#00FF00Нажми здесь чтобы получить'
+    item-claimed:
+      material: GREEN_STAINED_GLASS
+      name: '&#00AA00&lДень %day%'
+      lore:
+        - ''
+        - ' &7- &fВы уже получили этот подарок!'
+        - '(5 алмазов, 30 коинов)'
+        - ''
+        - '&#00AA00Уже получен'
+    item-unclaimable:
+      material: YELLOW_STAINED_GLASS
+      name: '&#FF3333&lДень %day%'
+      lore:
+        - ''
+        - ' &7- &fПодарок можно открыть в: &#FF9999%time%&f!'
+        - '(5 алмазов, 30 коинов)'
+        - ''
+        - '&#FF3333Возвращайся позже'
+
+  special:
+    slot:
+      - 35
+    days:
+      - 21
+    item-claimable:
+      material: MAGENTA_STAINED_GLASS
+      name: '&#00FF00&lДень %day%'
+      lore:
+        - ''
+        - ' &7- &fЗабирай свой подарок!'
+        - '(2 Обломка незерита, 100 коинов, Книга - "острота5, защита5, прочность3")'
+        - ''
+        - '&#00FF00Нажми здесь чтобы получить'
+    item-claimed:
+      material: GREEN_STAINED_GLASS
+      name: '&#00AA00&lДень %day%'
+      lore:
+        - ''
+        - ' &7- &fВы уже получили этот подарок!'
+        - '(2 Обломка незерита, 100 коинов, Книга - "острота5, защита5, прочность3")'
+        - ''
+        - '&#00AA00Уже получен'
+    item-unclaimable:
+      material: YELLOW_STAINED_GLASS
+      name: '&#FF3333&lДень %day%'
+      lore:
+        - ''
+        - ' &7- &fПодарок можно открыть в: &#FF9999%time%&f!'
+        - '(2 Обломка незерита, 100 коинов, Книга - "острота5, защита5, прочность3")'
+        - ''
+        - '&#FF3333Возвращайся позже'
+    item-expired:
+      material: RED_STAINED_GLASS
+      name: '&#FF3333&lДень %day%'
+      lore:
+        - ''
+        - ' &7- &fЭтот подарок больше нельзя открыть!'
+        - '(2 Обломка незерита, 100 коинов, Книга - "острота5, защита5, прочность3")'
+        - ''
+        - '&#FF3333Вы пропустили эту награду'
