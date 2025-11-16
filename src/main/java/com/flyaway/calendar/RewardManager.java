@@ -178,10 +178,10 @@ public class RewardManager {
     private ItemStack createItemStack(RewardItem rewardItem) {
         try {
             return ItemBuilder.createItemStack(
-                rewardItem.material,
-                rewardItem.amount,
-                rewardItem.name,
-                Collections.emptyList()
+                    rewardItem.material,
+                    rewardItem.amount,
+                    rewardItem.name,
+                    Collections.emptyList()
             );
         } catch (Exception e) {
             plugin.getLogger().warning("Ошибка создания предмета: " + rewardItem.material);
@@ -202,7 +202,6 @@ public class RewardManager {
             }
         } catch (Exception e) {
             plugin.getLogger().warning("Ошибка выполнения команды: " + command);
-            e.printStackTrace();
         }
     }
 
@@ -228,7 +227,6 @@ public class RewardManager {
             }
         } catch (Exception e) {
             plugin.getLogger().warning("Ошибка парсинга NBT команды: " + command);
-            e.printStackTrace();
         }
     }
 

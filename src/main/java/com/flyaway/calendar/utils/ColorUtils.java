@@ -13,26 +13,24 @@ public class ColorUtils {
         // Сначала обрабатываем hex цвета формата &#RRGGBB
         Pattern hexPattern = Pattern.compile("&#([0-9a-fA-F]{6})");
         Matcher hexMatcher = hexPattern.matcher(text);
-        StringBuffer hexResult = new StringBuffer();
+        StringBuilder hexResult = new StringBuilder();
 
         while (hexMatcher.find()) {
             String hexColor = hexMatcher.group(1);
             // Преобразуем #RRGGBB в §x§R§R§G§G§B§B
             String minecraftHex = "§x" +
-                "§" + hexColor.charAt(0) +
-                "§" + hexColor.charAt(1) +
-                "§" + hexColor.charAt(2) +
-                "§" + hexColor.charAt(3) +
-                "§" + hexColor.charAt(4) +
-                "§" + hexColor.charAt(5);
+                    "§" + hexColor.charAt(0) +
+                    "§" + hexColor.charAt(1) +
+                    "§" + hexColor.charAt(2) +
+                    "§" + hexColor.charAt(3) +
+                    "§" + hexColor.charAt(4) +
+                    "§" + hexColor.charAt(5);
             hexMatcher.appendReplacement(hexResult, Matcher.quoteReplacement(minecraftHex));
         }
         hexMatcher.appendTail(hexResult);
 
         // Затем обычные цвета формата &a
-        String result = hexResult.toString().replace('&', '§');
-
-        return result;
+        return hexResult.toString().replace('&', '§');
     }
 
     public static List<String> formatColor(List<String> texts) {

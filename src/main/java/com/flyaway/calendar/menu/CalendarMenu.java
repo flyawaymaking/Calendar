@@ -227,17 +227,6 @@ public class CalendarMenu implements InventoryHolder {
         }
 
         Set<String> presentTypes = menuConfig.getConfigurationSection("presents").getKeys(false);
-        Set<Integer> allDays = new TreeSet<>();
-
-        // Собираем все дни
-        for (String type : presentTypes) {
-            String daysPath = "presents." + type + ".days";
-            if (menuConfig.contains(daysPath)) {
-                for (String dayRange : menuConfig.getStringList(daysPath)) {
-                    allDays.addAll(parseDayRange(dayRange));
-                }
-            }
-        }
 
         // Сопоставляем дни со слотами
         for (String type : presentTypes) {

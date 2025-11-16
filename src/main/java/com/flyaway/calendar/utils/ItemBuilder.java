@@ -12,11 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ItemBuilder {
-    private ItemStack item;
-
-    public ItemBuilder(Material material) {
-        this.item = new ItemStack(material);
-    }
+    private final ItemStack item;
 
     public ItemBuilder(Material material, int amount) {
         this.item = new ItemStack(material, amount);
@@ -44,19 +40,6 @@ public class ItemBuilder {
         return this;
     }
 
-    public ItemBuilder addEnchantment(Enchantment enchantment, int level) {
-        ItemMeta meta = item.getItemMeta();
-        if (meta != null) {
-            if (meta instanceof EnchantmentStorageMeta) {
-                ((EnchantmentStorageMeta) meta).addStoredEnchant(enchantment, level, true);
-            } else {
-                meta.addEnchant(enchantment, level, true);
-            }
-            item.setItemMeta(meta);
-        }
-        return this;
-    }
-
     public ItemStack build() {
         return item;
     }
@@ -73,7 +56,7 @@ public class ItemBuilder {
         EnchantmentStorageMeta meta = (EnchantmentStorageMeta) book.getItemMeta();
 
         if (meta != null && nbtData.contains("stored_enchantments")) {
-            Pattern pattern = Pattern.compile("\\{([^}]+)\\}");
+            Pattern pattern = Pattern.compile("\\{([^}]+)}");
             Matcher matcher = pattern.matcher(nbtData);
 
             if (matcher.find()) {
@@ -102,51 +85,31 @@ public class ItemBuilder {
     private static Enchantment getEnchantmentByName(String name) {
         try {
             // Для Minecraft 1.21
-            switch (name.toLowerCase()) {
-                case "protection":
-                    return Enchantment.PROTECTION;
-                case "sharpness":
-                    return Enchantment.SHARPNESS;
-                case "unbreaking":
-                    return Enchantment.UNBREAKING;
-                case "fire_protection":
-                    return Enchantment.FIRE_PROTECTION;
-                case "feather_falling":
-                    return Enchantment.FEATHER_FALLING;
-                case "blast_protection":
-                    return Enchantment.BLAST_PROTECTION;
-                case "projectile_protection":
-                    return Enchantment.PROJECTILE_PROTECTION;
-                case "respiration":
-                    return Enchantment.RESPIRATION;
-                case "aqua_affinity":
-                    return Enchantment.AQUA_AFFINITY;
-                case "thorns":
-                    return Enchantment.THORNS;
-                case "depth_strider":
-                    return Enchantment.DEPTH_STRIDER;
-                case "frost_walker":
-                    return Enchantment.FROST_WALKER;
-                case "mending":
-                    return Enchantment.MENDING;
-                case "vanishing_curse":
-                    return Enchantment.VANISHING_CURSE;
-                case "binding_curse":
-                    return Enchantment.BINDING_CURSE;
-                case "soul_speed":
-                    return Enchantment.SOUL_SPEED;
-                case "swift_sneak":
-                    return Enchantment.SWIFT_SNEAK;
-                case "wind_burst":
-                    return Enchantment.WIND_BURST;
-                case "density":
-                    return Enchantment.DENSITY;
-                case "breach":
-                    return Enchantment.BREACH;
-                default:
+            return switch (name.toLowerCase()) {
+                case "protection" -> Enchantment.PROTECTION;
+                case "sharpness" -> Enchantment.SHARPNESS;
+                case "unbreaking" -> Enchantment.UNBREAKING;
+                case "fire_protection" -> Enchantment.FIRE_PROTECTION;
+                case "feather_falling" -> Enchantment.FEATHER_FALLING;
+                case "blast_protection" -> Enchantment.BLAST_PROTECTION;
+                case "projectile_protection" -> Enchantment.PROJECTILE_PROTECTION;
+                case "respiration" -> Enchantment.RESPIRATION;
+                case "aqua_affinity" -> Enchantment.AQUA_AFFINITY;
+                case "thorns" -> Enchantment.THORNS;
+                case "depth_strider" -> Enchantment.DEPTH_STRIDER;
+                case "frost_walker" -> Enchantment.FROST_WALKER;
+                case "mending" -> Enchantment.MENDING;
+                case "vanishing_curse" -> Enchantment.VANISHING_CURSE;
+                case "binding_curse" -> Enchantment.BINDING_CURSE;
+                case "soul_speed" -> Enchantment.SOUL_SPEED;
+                case "swift_sneak" -> Enchantment.SWIFT_SNEAK;
+                case "wind_burst" -> Enchantment.WIND_BURST;
+                case "density" -> Enchantment.DENSITY;
+                case "breach" -> Enchantment.BREACH;
+                default ->
                     // Пробуем найти через NamespacedKey
-                    return Enchantment.getByKey(org.bukkit.NamespacedKey.minecraft(name.toLowerCase()));
-            }
+                        Enchantment.getByKey(org.bukkit.NamespacedKey.minecraft(name.toLowerCase()));
+            };
         } catch (Exception e) {
             return null;
         }

@@ -20,11 +20,10 @@ public class MenuListener implements Listener {
         InventoryHolder holder = event.getInventory().getHolder();
 
         // Проверяем, что это меню нашего плагина
-        if (!(holder instanceof CalendarMenu)) {
+        if (!(holder instanceof CalendarMenu calendarMenu)) {
             return;
         }
 
-        CalendarMenu calendarMenu = (CalendarMenu) holder;
         event.setCancelled(true);
 
         // Проверяем, что клик в верхнем инвентаре
