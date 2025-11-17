@@ -1,11 +1,10 @@
 package com.flyaway.calendar.listeners;
 
 import com.flyaway.calendar.CalendarPlugin;
-import com.flyaway.calendar.menu.CalendarMenu;
+import com.flyaway.calendar.holders.MenuHolder;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.InventoryHolder;
 
 public class MenuListener implements Listener {
@@ -20,7 +19,7 @@ public class MenuListener implements Listener {
         InventoryHolder holder = event.getInventory().getHolder();
 
         // Проверяем, что это меню нашего плагина
-        if (!(holder instanceof CalendarMenu calendarMenu)) {
+        if (!(holder instanceof MenuHolder menuHolder)) {
             return;
         }
 
@@ -36,11 +35,6 @@ public class MenuListener implements Listener {
         }
 
         // Передаем обработку в класс меню
-        calendarMenu.handleClick(event.getRawSlot());
-    }
-
-    @EventHandler
-    public void onInventoryClose(InventoryCloseEvent event) {
-        // Можно добавить логику очистки если нужно
+        menuHolder.handleClick(event.getRawSlot());
     }
 }

@@ -3,110 +3,142 @@ package com.flyaway.calendar;
 import com.flyaway.calendar.commands.CalendarCommand;
 import com.flyaway.calendar.listeners.PlayerJoinListener;
 import com.flyaway.calendar.listeners.MenuListener;
-import com.flyaway.calendar.utils.MessageManager;
+import com.flyaway.calendar.managers.MenuConfigManager;
+import com.flyaway.calendar.managers.MessageManager;
+import com.flyaway.calendar.managers.RewardManager;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class CalendarPlugin extends JavaPlugin {
-    private static CalendarPlugin instance;
+
     private RewardManager rewardManager;
-    private MenuManager menuManager;
+    private MenuConfigManager menuConfigManager;
     private MessageManager messageManager;
     private PlayerData playerData;
-    private int taskId;
+
+    private ScheduledTask monthlyTask;
 
     @Override
     public void onEnable() {
-        instance = this;
 
-        // Создаем папки если их нет
-        if (!getDataFolder().exists()) {
-            getDataFolder().mkdirs();
+        // Создаём директорию плагина
+        try {
+            Files.createDirectories(getDataFolder().toPath());
+            Files.createDirectories(getDataFolder().toPath().resolve("players"));
+        } catch (IOException e) {
+            getLogger().severe("Не удалось создать папки плагина!");
         }
-        new File(getDataFolder(), "players").mkdirs();
 
         // Загружаем конфиги
         saveDefaultConfig();
         saveResource("rewards.yml", false);
         saveResource("menu.yml", false);
 
-        // Инициализируем менеджеры
         this.playerData = new PlayerData(this);
         this.rewardManager = new RewardManager(this);
-        this.menuManager = new MenuManager(this);
+        this.menuConfigManager = new MenuConfigManager(this);
         this.messageManager = new MessageManager(this);
 
-        // Регистрируем команды и слушатели
-        getCommand("calendar").setExecutor(new CalendarCommand(this));
-        getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
-        getServer().getPluginManager().registerEvents(new MenuListener(this), this);
+        CalendarCommand cmd = new CalendarCommand(this);
+        if (getCommand("calendar") != null) {
+            getCommand("calendar").setExecutor(cmd);
+            getCommand("calendar").setTabCompleter(cmd);
+        } else {
+            getLogger().warning("Команда /calendar не найдена в plugin.yml!");
+        }
 
-        // Запускаем задачу для проверки сброса 1 числа каждого месяца
+        Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new MenuListener(this), this);
+
         startMonthlyResetTask();
 
-        getLogger().info("Плагин календаря включен!");
+        getLogger().info("Плагин календаря включён!");
     }
 
     private void startMonthlyResetTask() {
-        // Задача выполняется каждый день в 00:01
-        taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
-            checkAndResetMonthly();
-        }, 20L * 60, 20L * 60 * 60 * 24); // Проверка каждый день
+
+        if (monthlyTask != null && !monthlyTask.isCancelled()) {
+            monthlyTask.cancel();
+        }
+
+        // Вычисляем время, когда должна сработать следующая проверка
+        long delayMillis = calculateNextRunDelay();
+
+        monthlyTask = Bukkit.getAsyncScheduler().runAtFixedRate(
+                this,
+                task -> checkAndResetMonthly(),
+                delayMillis,
+                1000L * 60 * 60 * 24,
+                TimeUnit.MILLISECONDS
+        );
+
+        getLogger().info("Ежедневная задача сброса наград запланирована через " + delayMillis + "ms");
     }
 
-    public MessageManager getMessageManager() {
-        return messageManager;
+    private long calculateNextRunDelay() {
+        LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
+        LocalDateTime next = now
+                .withHour(0).withMinute(1).withSecond(0).withNano(0);
+
+        if (!next.isAfter(now)) {
+            next = next.plusDays(1);
+        }
+
+        return ChronoUnit.MILLIS.between(now, next);
     }
 
     private void checkAndResetMonthly() {
-        int currentDay = rewardManager.getCurrentDayOfMonth();
+        int day = rewardManager.getCurrentDayOfMonth();
 
-        // Если сегодня 1 число, сбрасываем награды
-        if (currentDay == 1) {
-            playerData.forceResetAllPlayers();
-            getLogger().info("Автоматически сброшены награды для всех игроков (1 число месяца)");
+        if (day != 1) return;
 
-            // Уведомляем онлайн-игроков
-            for (Player player : getServer().getOnlinePlayers()) {
-                messageManager.sendMessage(player, "&6&lНаступил новый месяц! &eСистема ежедневных наград сброшена. Заходите каждый день чтобы получить все награды!");
-            }
+        playerData.forceResetAllPlayers();
+        getLogger().info("Автоматический сброс наград (1 число нового месяца)");
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            messageManager.sendMessageByKey(player, "new-month", Map.of("player", player.getName()));
         }
     }
 
     @Override
     public void onDisable() {
-        // Отменяем задачу если она запущена
-        if (taskId != 0) {
-            Bukkit.getScheduler().cancelTask(taskId);
+        if (monthlyTask != null) {
+            monthlyTask.cancel();
         }
-
         getLogger().info("Плагин календаря выключен!");
     }
 
     public void reloadPlugin() {
         reloadConfig();
         rewardManager.loadRewards();
-        menuManager.loadMenuConfig();
+        menuConfigManager.loadMenuConfig();
         messageManager.loadMessageConfig();
         getLogger().info("Конфиги перезагружены!");
-    }
-
-    public static CalendarPlugin getInstance() {
-        return instance;
     }
 
     public RewardManager getRewardManager() {
         return rewardManager;
     }
 
-    public MenuManager getMenuManager() {
-        return menuManager;
+    public MenuConfigManager getMenuConfigManager() {
+        return menuConfigManager;
     }
 
     public PlayerData getPlayerData() {
         return playerData;
+    }
+
+    public MessageManager getMessageManager() {
+        return messageManager;
     }
 }

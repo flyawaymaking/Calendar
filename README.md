@@ -14,6 +14,7 @@
 - **Гибкая настройка:** Настройте любые награды за любое количество входов
 - **Автоматический сброс:** Прогресс всех игроков автоматически сбрасывается в начале каждого месяца
 - **Простой интерфейс:** Игроки могут посмотреть свой прогресс и доступные награды через меню
+- **MiniMessages** - Поддержка MiniMessages форматирования для сообщений и предметов
 
 ## ⚙️ Команды
 
@@ -36,22 +37,17 @@
 
 ### config.yml
 ```yaml
-prefix: '&#FF0055&lЕжедневный вход &7» '
+prefix: "<gray>[<aqua>Календарь</aqua>]</gray>"
 
-help:
-  - ' '
-  - '&#FF0055&lЕжедневный вход &7» '
-  - ' &7- &f/calendar reload &7| &#FF0055Перезагрузить плагин'
-  - ' '
-
-error:
-  too-early: '&#FF3333Вы ещё не можете получить этот подарок!'
-  already-claimed: '&#FF3333Вы уже получили этот подарок!'
-  requirements-fail: '&#FF3333Вы не можете получить этот подарок!'
-
-reload:
-  success: '&#33FF33Плагин успешно перезагружен!'
-  failed: '&#FF3333Не удалось перезагрузить плагин! Ошибка в файле &f%file%&#FF3333, проверьте консоль или используйте yaml-валидатор, чтобы исправить ошибки!'
+messages:
+  # Общие сообщения
+  new-month: "<gold>Наступил новый месяц! Система ежедневных наград сброшена. Заходите каждый день чтобы получить все награды!"
+  already-claimed-today: "<yellow>Вы уже получали награду сегодня. Следующую награду можно будет получить завтра!"
+  no-inventory-space: "<red>У вас нет места в инвентаре для награды! Используйте <yellow>/calendar</yellow> чтобы получить её позже."
+  all-rewards-claimed: "<gold>Поздравляем! Вы получили все награды за этот месяц! Ждём вас в следующем месяце."
+  progress: "<gray>Ваш прогресс: <yellow>{claimed}</yellow>/<gold>{total}</gold> наград получено"
+  item-dropped: "<red>Предмет {item} выпал на землю из-за нехватки места в инвентаре!"
+...
 ```
 
 ### rewards.yml
@@ -67,7 +63,7 @@ weekday-rewards:
     - give %player% cookie 8
     - give %player% experience_bottle 10
     - money give %player% 500
-  message: '&#33AAFFВы получили награду за день %day%!'
+  message: '<color:#33aaff>Вы получили награду за день {day}!</color>'
 
 saturday-rewards:
   days:
@@ -76,45 +72,22 @@ saturday-rewards:
     - 20
   items:
     - material: DIAMOND
-      name: '&#33AAFFАлмаз за вход'
+      name: '<color:#33aaff>Алмаз за вход</color>'
       amount: 3
     - material: ENCHANTED_GOLDEN_APPLE
-      name: '&#FFD700Зачарованное золотое яблоко'
+      name: '<color:#ffd700>Зачарованное золотое яблоко</color>'
       amount: 1
   commands:
     - money give %player% 750
-  message: '&#FFAA00Вы получили награду за день %day%!'
-
-sunday-rewards:
-  days:
-    - 7
-    - 14
-  items:
-    - material: DIAMOND
-      name: '&#33AAFFАлмаз за вход'
-      amount: 5
-  commands:
-    - money give %player% 1000
-  message: '&#FF00FFВы получили награду за день %day%!'
-
-special-reward:
-  days:
-    - 21
-  items:
-    - material: NETHERITE_SCRAP
-      name: '&#555555Обломок незерита'
-      amount: 2
-  commands:
-    - give %player% enchanted_book[stored_enchantments={protection:5,sharpness:5,unbreaking:3}] 1
-    - money give %player% 50
-  message: '&#FFD700&lВы получили супер награду за вход 21 день подряд!'
+  message: '<gradient:#ffaa00:#ffcc44>Вы получили награду за день {day}!</gradient>'
+...
 ```
 
 ### menu.yml
 В этом файле настраивается внешний вид интерфейса календаря. (названия и колечество внутри presents может быть любым)
 
 ```yaml
-title: '&0&lКалендарь'
+title: "<gradient:#6a0dad:#8a2be2>Ежедневные награды</gradient>"
 # графический интерфейс может содержать от 1 до 6 строк
 rows: 6
 
@@ -129,10 +102,10 @@ filler:
 close:
   slot: 49
   material: BARRIER
-  name: '&#FF0000&lЗакрыть'
-  lore:
-    - ''
-    - '&#FF0000Нажмите здесь чтобы закрыть!'
+  name: '<red><bold>Закрыть</bold></red>'
+  lore: |
+    |
+    <gray>Нажмите здесь чтобы закрыть!</gray>
 
 presents:
   weekday:
@@ -149,33 +122,34 @@ presents:
     item-claimable:
       material: PLAYER_HEAD
       texture: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjJiN2I5ZTA3YzM1MGJjZDY2MmJjZjNmMTYyNGE1OGU5NjVhNzZlYTAxOTE2ZGQzM2M0NzViZDFmYzg2OTQ3YiJ9fX0=
-      name: '&#00FF00&lДень %day%'
-      lore:
-        - ''
-        - ' &7- &fЗабирай свой подарок!'
-        - '(10 пузырьков опыта, 500 монет, 8 печенек)'
-        - ''
-        - '&#00FF00Нажмите здесь чтобы получить'
+      name: '<gradient:#00ff00:#32cd32><bold>День {day}</bold></gradient>'
+      lore: |
+        |
+        <gray>-</gray> <white>Забирай свой подарок!</white>
+        (10 пузырьков опыта, 500 монет, 8 печенек)
+        |
+        <gradient:#00ff00:#32cd32>Нажмите здесь чтобы получить</gradient>
     # показывается, когда подарок уже получен
     item-claimed:
       material: GREEN_STAINED_GLASS
-      name: '&#00AA00&lДень %day%'
-      lore:
-        - ''
-        - ' &7- &fВы уже получили этот подарок!'
-        - '(10 пузырьков опыта, 500 монет, 8 печенек)'
-        - ''
-        - '&#00AA00Уже получен'
+      name: '<gradient:#008000:#006400><bold>День {day}</bold></gradient>'
+      lore: |
+        |
+        <gray>-</gray> <white>Вы уже получили этот подарок!</white>
+        (10 пузырьков опыта, 500 монет, 8 печенек)
+        |
+        <gradient:#008000:#006400>Уже получен</gradient>
     # показывается, когда подарок не может быть получен
     item-unclaimable:
       material: YELLOW_STAINED_GLASS
-      name: '&#FF3333&lДень %day%'
-      lore:
-        - ''
-        - ' &7- &fПодарок можно открыть в: &#FF9999%time%&f!'
-        - '(10 пузырьков опыта, 500 монет, 8 печенек)'
-        - ''
-        - '&#FF3333Возвращайтесь позже'
+      name: '<gradient:#ff3333:#cc0000><bold>День {day}</bold></gradient>'
+      lore: |
+        |
+        <gray>-</gray> <white>Подарок можно открыть в: <gradient:#ff9999:#ff6666>{time}</gradient>!</white>
+        (10 пузырьков опыта, 500 монет, 8 печенек)
+        |
+        <gradient:#ff3333:#cc0000>Возвращайтесь позже</gradient>
+...
 ```
 ### Как настроить награды:
 

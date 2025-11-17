@@ -1,7 +1,10 @@
-package com.flyaway.calendar;
+package com.flyaway.calendar.managers;
 
+import com.flyaway.calendar.CalendarPlugin;
 import com.flyaway.calendar.utils.ItemBuilder;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -9,17 +12,19 @@ import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.*;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class RewardManager {
     private final CalendarPlugin plugin;
     private FileConfiguration rewardsConfig;
     private final List<RewardConfig> sequentialRewards = new ArrayList<>();
+    private final MessageManager messageManager;
 
     public RewardManager(CalendarPlugin plugin) {
         this.plugin = plugin;
+        this.messageManager = plugin.getMessageManager();
         loadRewards();
     }
 
@@ -79,18 +84,26 @@ public class RewardManager {
             rewardConfig.message = rewardsConfig.getString(type + ".message", "");
 
             // Загружаем предметы
-            if (rewardsConfig.contains(type + ".items")) {
-                List<Map<?, ?>> items = rewardsConfig.getMapList(type + ".items");
-                for (Map<?, ?> itemMap : items) {
-                    try {
-                        RewardItem item = new RewardItem();
-                        item.material = Material.valueOf(itemMap.get("material").toString().toUpperCase());
-                        item.name = itemMap.get("name").toString();
-                        item.amount = Integer.parseInt(itemMap.get("amount").toString());
-                        rewardConfig.items.add(item);
-                    } catch (IllegalArgumentException e) {
-                        plugin.getLogger().warning("Неверный материал в награде " + type + ": " + itemMap.get("material"));
+            ConfigurationSection itemsSec = rewardsConfig.getConfigurationSection(type + ".items");
+            if (itemsSec != null) {
+                for (String key : itemsSec.getKeys(false)) {
+
+                    ConfigurationSection s = itemsSec.getConfigurationSection(key);
+                    if (s == null) continue;
+
+                    String matName = s.getString("material");
+                    Material mat = matName != null ? Material.matchMaterial(matName) : null;
+                    if (mat == null) {
+                        plugin.getLogger().warning("Неверный материал: " + matName);
+                        continue;
                     }
+
+                    RewardItem item = new RewardItem();
+                    item.material = mat;
+                    item.name = messageManager.convertToComponent(s.getString("name", null));
+                    item.amount = s.getInt("amount", 1);
+
+                    rewardConfig.items.add(item);
                 }
             }
 
@@ -155,7 +168,7 @@ public class RewardManager {
                 // Если инвентарь полный, выкидываем предметы на землю
                 for (ItemStack left : leftover.values()) {
                     player.getWorld().dropItemNaturally(player.getLocation(), left);
-                    plugin.getMessageManager().sendMessage(player, "&cПредмет " + itemStack.getType() + " выпал на землю из-за нехватки места в инвентаре!");
+                    messageManager.sendRawMessageByKey(player, "item-dropped", Map.of("item", itemStack.getType().toString()));
                 }
             }
         }
@@ -167,12 +180,8 @@ public class RewardManager {
 
         // Отправляем сообщение
         if (!rewardConfig.message.isEmpty()) {
-            String formattedMessage = rewardConfig.message.replace("%day%", String.valueOf(sequentialDay));
-            plugin.getMessageManager().sendMessage(player, formattedMessage);
+            messageManager.sendRawMessage(player, rewardConfig.message, Map.of("day", String.valueOf(sequentialDay)));
         }
-
-        // Проигрываем звук
-        playClaimSound(player);
     }
 
     private ItemStack createItemStack(RewardItem rewardItem) {
@@ -230,21 +239,12 @@ public class RewardManager {
         }
     }
 
-    private void playClaimSound(Player player) {
-        // Реализация звуков
-    }
-
     public int getCurrentMonth() {
         return LocalDate.now().getMonthValue();
     }
 
     public int getCurrentYear() {
         return LocalDate.now().getYear();
-    }
-
-    public int getDaysInCurrentMonth() {
-        YearMonth yearMonth = YearMonth.of(getCurrentYear(), getCurrentMonth());
-        return yearMonth.lengthOfMonth();
     }
 
     public int getCurrentDayOfMonth() {
@@ -261,7 +261,7 @@ public class RewardManager {
 
     public static class RewardItem {
         public Material material;
-        public String name;
+        public Component name;
         public int amount;
     }
 }
