@@ -1,12 +1,17 @@
 package com.flyaway.calendar.utils;
 
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,23 +23,19 @@ public class ItemBuilder {
         this.item = new ItemStack(material, amount);
     }
 
-    public ItemBuilder setName(String name) {
+    public ItemBuilder setName(Component name) {
         ItemMeta meta = item.getItemMeta();
-        if (meta != null) {
-            meta.setDisplayName(formatColor(name));
+        if (meta != null && !name.equals(Component.empty())) {
+            meta.displayName(name);
             item.setItemMeta(meta);
         }
         return this;
     }
 
-    public ItemBuilder setLore(String... lore) {
-        return setLore(Arrays.asList(lore));
-    }
-
-    public ItemBuilder setLore(List<String> lore) {
+    public ItemBuilder setLore(List<Component> lore) {
         ItemMeta meta = item.getItemMeta();
-        if (meta != null) {
-            meta.setLore(formatColor(lore));
+        if (meta != null && !lore.equals(Component.empty())) {
+            meta.lore(lore);
             item.setItemMeta(meta);
         }
         return this;
@@ -44,11 +45,8 @@ public class ItemBuilder {
         return item;
     }
 
-    public static ItemStack createItemStack(Material material, int amount, String name, List<String> lore) {
-        return new ItemBuilder(material, amount)
-                .setName(name)
-                .setLore(lore)
-                .build();
+    public static ItemStack createItemStack(Material material, int amount, Component name, List<Component> lore) {
+        return new ItemBuilder(material, amount).setName(name).setLore(lore).build();
     }
 
     public static ItemStack createEnchantedBook(String nbtData) {
@@ -84,42 +82,17 @@ public class ItemBuilder {
 
     private static Enchantment getEnchantmentByName(String name) {
         try {
-            // Для Minecraft 1.21
-            return switch (name.toLowerCase()) {
-                case "protection" -> Enchantment.PROTECTION;
-                case "sharpness" -> Enchantment.SHARPNESS;
-                case "unbreaking" -> Enchantment.UNBREAKING;
-                case "fire_protection" -> Enchantment.FIRE_PROTECTION;
-                case "feather_falling" -> Enchantment.FEATHER_FALLING;
-                case "blast_protection" -> Enchantment.BLAST_PROTECTION;
-                case "projectile_protection" -> Enchantment.PROJECTILE_PROTECTION;
-                case "respiration" -> Enchantment.RESPIRATION;
-                case "aqua_affinity" -> Enchantment.AQUA_AFFINITY;
-                case "thorns" -> Enchantment.THORNS;
-                case "depth_strider" -> Enchantment.DEPTH_STRIDER;
-                case "frost_walker" -> Enchantment.FROST_WALKER;
-                case "mending" -> Enchantment.MENDING;
-                case "vanishing_curse" -> Enchantment.VANISHING_CURSE;
-                case "binding_curse" -> Enchantment.BINDING_CURSE;
-                case "soul_speed" -> Enchantment.SOUL_SPEED;
-                case "swift_sneak" -> Enchantment.SWIFT_SNEAK;
-                case "wind_burst" -> Enchantment.WIND_BURST;
-                case "density" -> Enchantment.DENSITY;
-                case "breach" -> Enchantment.BREACH;
-                default ->
-                    // Пробуем найти через NamespacedKey
-                        Enchantment.getByKey(org.bukkit.NamespacedKey.minecraft(name.toLowerCase()));
-            };
+            if (name == null || name.isBlank()) return null;
+
+            String key = name.trim().toLowerCase();
+
+            NamespacedKey nsKey = NamespacedKey.minecraft(key);
+
+            Registry<@NotNull Enchantment> enchantmentRegistry = RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT);
+
+            return enchantmentRegistry.get(nsKey);
         } catch (Exception e) {
             return null;
         }
-    }
-
-    private String formatColor(String text) {
-        return ColorUtils.formatColor(text);
-    }
-
-    private List<String> formatColor(List<String> texts) {
-        return ColorUtils.formatColor(texts);
     }
 }

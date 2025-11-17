@@ -6,8 +6,8 @@ weekday-rewards:
   commands:
     - give %player% cookie 8
     - give %player% experience_bottle 10
-    - money give %player% 500
-  message: '&#33AAFFВы получили награду за день %day%!'
+    - money give %player% 250
+  message: '<color:#33aaff>Вы получили награду за день {day}!</color>'
 
 saturday-rewards:
   days:
@@ -16,14 +16,12 @@ saturday-rewards:
     - 20
   items:
     - material: DIAMOND
-      name: '&#33AAFFАлмаз за вход'
       amount: 3
     - material: ENCHANTED_GOLDEN_APPLE
-      name: '&#FFD700Зачарованное золотое яблоко'
       amount: 1
   commands:
-    - money give %player% 750
-  message: '&#FFAA00Вы получили награду за день %day%!'
+    - money give %player% 500
+  message: '<gradient:#ffaa00:#ffcc44>Вы получили награду за день {day}!</gradient>'
 
 sunday-rewards:
   days:
@@ -31,20 +29,18 @@ sunday-rewards:
     - 14
   items:
     - material: DIAMOND
-      name: '&#33AAFFАлмаз за вход'
       amount: 5
   commands:
-    - money give %player% 1000
-  message: '&#FF00FFВы получили награду за день %day%!'
+    - coins give %player% 30
+  message: '<gradient:#ff00ff:#ff66ff>Вы получили награду за день {day}!</gradient>'
 
 special-reward:
   days:
     - 21
   items:
     - material: NETHERITE_SCRAP
-      name: '&#555555Обломок незерита'
       amount: 2
   commands:
-    - give %player% enchanted_book[stored_enchantments={protection:5,sharpness:5,unbreaking:3}] 1
-    - coins give %player% 50
-  message: '&#FFD700&lВы получили супер награду за вход 21 день подряд!'
+    - eenchants randomenchant 5 %player%
+    - coins give %player% 150
+  message: '<gradient:#ffd700:#ffff00><bold>Вы получили супер награду за вход 21 день подряд!</bold></gradient>'

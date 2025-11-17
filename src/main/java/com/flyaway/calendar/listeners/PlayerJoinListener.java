@@ -1,78 +1,78 @@
 package com.flyaway.calendar.listeners;
 
 import com.flyaway.calendar.CalendarPlugin;
+import com.flyaway.calendar.PlayerCalendarData;
 import com.flyaway.calendar.PlayerData;
+import com.flyaway.calendar.managers.RewardManager;
+import com.flyaway.calendar.managers.MessageManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 public class PlayerJoinListener implements Listener {
     private final CalendarPlugin plugin;
+    private final MessageManager messageManager;
+    private final RewardManager rewardManager;
 
     public PlayerJoinListener(CalendarPlugin plugin) {
         this.plugin = plugin;
-    }
-
-    private void sendMessage(Player player, String message) {
-        plugin.getMessageManager().sendMessage(player, message);
+        this.messageManager = plugin.getMessageManager();
+        this.rewardManager = plugin.getRewardManager();
     }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
+        PlayerData playerData = plugin.getPlayerData();
 
-        // Всегда загружаем свежие данные из файла
-        PlayerData.PlayerCalendarData data = plugin.getPlayerData().getPlayerData(player);
+        PlayerCalendarData data = playerData.getPlayerData(player);
 
-        // Получаем текущую дату
-        String currentDate = getCurrentDate();
+        String today = LocalDate.now().toString();
 
-        // Проверяем, получал ли игрок награду сегодня
-        if (currentDate.equals(data.lastClaimDate)) {
-            sendMessage(player, "&eВы уже получали награду сегодня. Следующую награду можно будет получить завтра!");
-            showProgress(player, data);
+        // Если уже получал сегодня — просто показать прогресс
+        if (today.equals(data.getLastClaimDate())) {
+            messageManager.sendMessageByKey(player, "already-claimed-today", Map.of("player", player.getName()));
             return;
         }
 
-        // Если игрок еще не получал награду сегодня И у него есть доступные дни
-        int nextSequentialDay = data.claimedDays.size() + 1;
+        int nextDay = data.getNextClaimDay();
+        int maxDays = rewardManager.getTotalRewards();
 
-        if (nextSequentialDay <= plugin.getRewardManager().getTotalRewards()) {
-            // Автоматически выдаем награду при входе
-            if (hasInventorySpace(player)) {
-                plugin.getRewardManager().giveReward(player, nextSequentialDay);
-
-                // Обновляем данные и сохраняем
-                data.claimedDays.add(nextSequentialDay);
-                data.lastClaimDate = currentDate;
-                plugin.getPlayerData().savePlayerData(player, data);
-            } else {
-                sendMessage(player, "&eУ вас нет места в инвентаре для награды! Используйте &6/calendar &eчтобы получить её позже.");
-            }
-        } else if (data.claimedDays.size() >= plugin.getRewardManager().getTotalRewards()) {
-            sendMessage(player, "&6&lПоздравляем! &eВы получили все награды за этот месяц! Ждём вас в следующем месяце.");
+        // Если больше наград нет — сообщаем и выходим
+        if (nextDay > maxDays) {
+            messageManager.sendMessageByKey(player, "all-rewards-claimed");
+            return;
         }
 
-        // Показываем прогресс
+        // Есть награда — пытаемся выдать
+        if (!hasInventorySpace(player)) {
+            messageManager.sendMessageByKey(player, "no-inventory-space");
+            return;
+        }
+
+        // Выдача награды
+        rewardManager.giveReward(player, nextDay);
+
+        data.claimDay(nextDay, today);
+        playerData.savePlayerData(player, data);
+
         showProgress(player, data);
     }
 
-    private void showProgress(Player player, PlayerData.PlayerCalendarData data) {
-        int totalRewards = plugin.getRewardManager().getTotalRewards();
-        int claimed = data.claimedDays.size();
+    private void showProgress(Player player, PlayerCalendarData data) {
+        int total = rewardManager.getTotalRewards();
+        int claimed = data.getLastClaimedDay();
 
-        if (claimed > 0 && claimed < totalRewards) {
-            sendMessage(player, "&7Ваш прогресс: &e" + claimed + "&7/&6" + totalRewards + " &7наград получено");
-        }
-    }
+        if (claimed == 0 || claimed >= total)
+            return;
 
-    private String getCurrentDate() {
-        // Возвращает дату в формате "2024-01-15"
-        LocalDate today = LocalDate.now();
-        return today.toString();
+        messageManager.sendMessageByKey(player, "progress", Map.of(
+                "claimed", String.valueOf(claimed),
+                "total", String.valueOf(total)));
     }
 
     private boolean hasInventorySpace(Player player) {
