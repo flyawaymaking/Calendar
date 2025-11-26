@@ -71,14 +71,14 @@ saturday-rewards:
     - 13
     - 20
   items:
-    - material: DIAMOND
-      name: '<color:#33aaff>Алмаз за вход</color>'
+    item1:
+      material: DIAMOND
       amount: 3
-    - material: ENCHANTED_GOLDEN_APPLE
-      name: '<color:#ffd700>Зачарованное золотое яблоко</color>'
+    item2:
+      material: ENCHANTED_GOLDEN_APPLE
       amount: 1
   commands:
-    - money give %player% 750
+    - money give %player% 500
   message: '<gradient:#ffaa00:#ffcc44>Вы получили награду за день {day}!</gradient>'
 ...
 ```

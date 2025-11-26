@@ -15,9 +15,11 @@ saturday-rewards:
     - 13
     - 20
   items:
-    - material: DIAMOND
+    item1:
+      material: DIAMOND
       amount: 3
-    - material: ENCHANTED_GOLDEN_APPLE
+    item2:
+      material: ENCHANTED_GOLDEN_APPLE
       amount: 1
   commands:
     - money give %player% 500
@@ -28,7 +30,8 @@ sunday-rewards:
     - 7
     - 14
   items:
-    - material: DIAMOND
+    item1:
+      material: DIAMOND
       amount: 5
   commands:
     - coins give %player% 30
@@ -38,7 +41,8 @@ special-reward:
   days:
     - 21
   items:
-    - material: NETHERITE_SCRAP
+    item:
+      material: NETHERITE_SCRAP
       amount: 2
   commands:
     - eenchants randomenchant 5 %player%
