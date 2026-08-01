@@ -1,6 +1,6 @@
-name: Calendar
-version: 1.2.0
-main: com.flyaway.calendar.CalendarPlugin
+name: ${name}
+version: ${version}
+main: ${group}.CalendarPlugin
 api-version: "1.21"
 author: FlyAwayMaking
 website: https://github.com/flyawaymaking
